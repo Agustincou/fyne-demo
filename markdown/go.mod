@@ -1,4 +1,4 @@
-module github.com/Agustincou/fyne-demo/hello-world
+module github.com/Agustincou/fyne-demo/markdown
 
 go 1.20
 
