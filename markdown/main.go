@@ -12,6 +12,14 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+const(
+	appTitle = "Markdown"
+	fileMenuName = "File"
+	fileMenuOpenItemName = "Open..."
+	fileMenuSaveItemName = "Save"
+	fileMenuSaveAsItemName = "Save as..."
+)
+
 var filter = storage.NewExtensionFileFilter([]string{".md", ".MD"})
 
 type Content struct {
@@ -31,7 +39,7 @@ func main() {
 	_ = app.New()
 
 	//create window & content
-	window := NewWindow("Markdown")
+	window := NewWindow(appTitle)
 
 	//show windows and run app
 	window.fyneWin.ShowAndRun()
@@ -72,13 +80,13 @@ func NewWindow(title string) *LocalWindow {
 }
 
 func (win *LocalWindow) addSaveMenuList() {
-	openMenuItem := fyne.NewMenuItem("Open...", win.openFunc())
-	saveAsMenuItem := fyne.NewMenuItem("Save as...", win.saveAsFunc())
+	openMenuItem := fyne.NewMenuItem(fileMenuOpenItemName, win.openFunc())
+	saveAsMenuItem := fyne.NewMenuItem(fileMenuSaveAsItemName, win.saveAsFunc())
 	//SaveMenuItem saved to reference him later and alter his behavior
-	win.content.SaveMenuItem = fyne.NewMenuItem("Save", win.saveFunc())
+	win.content.SaveMenuItem = fyne.NewMenuItem(fileMenuSaveItemName, win.saveFunc())
 	win.content.SaveMenuItem.Disabled = true
 
-	fileMenuList := fyne.NewMenu("File", openMenuItem, win.content.SaveMenuItem, saveAsMenuItem)
+	fileMenuList := fyne.NewMenu(fileMenuName, openMenuItem, win.content.SaveMenuItem, saveAsMenuItem)
 
 	menu := fyne.NewMainMenu(fileMenuList)
 
@@ -108,7 +116,7 @@ func (win *LocalWindow) saveAsFunc() func() {
 
 			defer write.Close()
 
-			win.fyneWin.SetTitle(win.fyneWin.Title() + " - " + write.URI().Name())
+			win.fyneWin.SetTitle(appTitle + " - " + write.URI().Name())
 			win.content.SaveMenuItem.Disabled = false
 
 		}, win.fyneWin)
@@ -140,7 +148,7 @@ func (win *LocalWindow) openFunc() func() {
 			win.content.EditWidget.SetText(string(data))
 
 			win.content.CurrentFile = read.URI()
-			win.fyneWin.SetTitle(win.fyneWin.Title() + " - " + read.URI().Name())
+			win.fyneWin.SetTitle(appTitle + " - " + read.URI().Name())
 			win.content.SaveMenuItem.Disabled = false
 		}, win.fyneWin)
 
