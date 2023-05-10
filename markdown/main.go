@@ -45,7 +45,7 @@ func main() {
 	window.fyneWin.ShowAndRun()
 }
 
-func NewContent() *Content{
+func NewContent() *Content {
 	var content Content
 
 	content.EditWidget = widget.NewMultiLineEntry()
@@ -63,6 +63,8 @@ func NewContent() *Content{
 
 func NewWindow(title string) *LocalWindow {
 	var localWin LocalWindow
+
+	fyne.CurrentApp().Settings().SetTheme(&myTheme{})
 
 	localWin.fyneWin = fyne.CurrentApp().NewWindow(title)
 	localWin.content = NewContent()
