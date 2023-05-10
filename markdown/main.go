@@ -1,12 +1,18 @@
 package main
 
 import (
+	"io/ioutil"
+	"strings"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/widget"
 )
+
+var filter = storage.NewExtensionFileFilter([]string{".md", ".MD"})
 
 type Content struct {
 	EditWidget    *widget.Entry
@@ -66,10 +72,10 @@ func NewWindow(title string) *LocalWindow {
 }
 
 func (win *LocalWindow) addSaveMenuList() {
-	openMenuItem := fyne.NewMenuItem("Open...", func() {})
+	openMenuItem := fyne.NewMenuItem("Open...", win.openFunc())
 	saveAsMenuItem := fyne.NewMenuItem("Save as...", win.saveAsFunc())
 	//SaveMenuItem saved to reference him later and alter his behavior
-	win.content.SaveMenuItem = fyne.NewMenuItem("Save", func() {})
+	win.content.SaveMenuItem = fyne.NewMenuItem("Save", win.saveFunc())
 	win.content.SaveMenuItem.Disabled = true
 
 	fileMenuList := fyne.NewMenu("File", openMenuItem, win.content.SaveMenuItem, saveAsMenuItem)
@@ -92,6 +98,10 @@ func (win *LocalWindow) saveAsFunc() func() {
 				//user cancelled
 				return
 			}
+			
+			if !strings.HasSuffix(strings.ToLower(write.URI().String()), ".md") {
+				dialog.ShowInformation("Error", "Please name your file with a .md extension!", win.fyneWin)
+			}
 
 			write.Write([]byte(win.content.EditWidget.Text))
 			win.content.CurrentFile = write.URI()
@@ -102,6 +112,54 @@ func (win *LocalWindow) saveAsFunc() func() {
 			win.content.SaveMenuItem.Disabled = false
 
 		}, win.fyneWin)
+		
+		saveDialog.SetFileName("untitled.md")
+		saveDialog.SetFilter(filter)
 		saveDialog.Show()
+	}
+}
+
+func (win *LocalWindow) openFunc() func() {
+	return func() {
+		openDialog := dialog.NewFileOpen(func(read fyne.URIReadCloser, err error) {
+			if err != nil {
+				dialog.ShowError(err, win.fyneWin)
+			}
+
+			if read == nil {
+				return
+			}
+
+			defer read.Close()
+
+			data, err := ioutil.ReadAll(read)
+			if err != nil {
+				dialog.ShowError(err, win.fyneWin)
+			}
+
+			win.content.EditWidget.SetText(string(data))
+
+			win.content.CurrentFile = read.URI()
+			win.fyneWin.SetTitle(win.fyneWin.Title() + " - " + read.URI().Name())
+			win.content.SaveMenuItem.Disabled = false
+		}, win.fyneWin)
+
+		openDialog.SetFilter(filter)
+		openDialog.Show()
+	}
+}
+
+func (win *LocalWindow) saveFunc() func () {
+	return func() {
+		if win.content.CurrentFile != nil {
+			write, err := storage.Writer(win.content.CurrentFile)
+			if err != nil {
+				dialog.ShowError(err, win.fyneWin)
+				return
+			}
+
+			write.Write([]byte(win.content.EditWidget.Text))
+			defer write.Close()
+		}
 	}
 }
