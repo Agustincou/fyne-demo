@@ -17,23 +17,21 @@ func main() {
 	a := app.New()
 	w := a.NewWindow("Hello, World!")
 
-	output, entry, btn := myApp.makeUI()
+	label, entry, btn := myApp.makeUI()
 
-	w.SetContent(container.NewVBox(output, entry, btn))
+	w.SetContent(container.NewVBox(label, entry, btn))
 	w.Resize(fyne.Size{Width: 500, Height: 500})
 
 	w.ShowAndRun()
 }
 
 func (app *App) makeUI() (*widget.Label, *widget.Entry, *widget.Button) {
-	output := widget.NewLabel("Hello, World!")
+	app.output = widget.NewLabel("Hello, World!")
 	entry := widget.NewEntry()
 	btn := widget.NewButton("Enter", func() {
 		app.output.SetText(entry.Text)
 	})
 	btn.Importance = widget.HighImportance
 
-	app.output = output
-
-	return output, entry, btn
+	return app.output, entry, btn
 }
