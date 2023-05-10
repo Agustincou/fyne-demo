@@ -1,6 +1,6 @@
 # fyne-demo
-https://www.udemy.com/course/building-gui-applications-with-fyne-and-go-golang
-https://fyne.io/
+* https://www.udemy.com/course/building-gui-applications-with-fyne-and-go-golang
+* https://fyne.io/
 
 I try put my own style in the implementation. If you get and compare the original course, you see that this code it's a little different, but in essence the same.
 
