@@ -1,4 +1,4 @@
-# fyne-demo
+# Complete end users programs 100% Golang backend code with Fyne GUI
 * https://www.udemy.com/course/building-gui-applications-with-fyne-and-go-golang
 * https://fyne.io/
 
