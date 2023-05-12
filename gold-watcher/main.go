@@ -15,5 +15,5 @@ func main() {
 
 	localWindow := principal.NewWindow(appTitle)
 
-	localWindow.FyneWin.ShowAndRun()
+	localWindow.ShowAndRun()
 }

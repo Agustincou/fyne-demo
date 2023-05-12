@@ -38,7 +38,7 @@ func Test_Get(t *testing.T) {
 	defer server.Close()
 
 	//when
-	price, err := NewGoldPriceClient(server.URL, http.DefaultClient, Currency).Get()
+	price, err := NewHTTPGoldPriceClient(server.URL, http.DefaultClient, Currency).Get()
 
 	//then
 	assert.Nil(t, err)
