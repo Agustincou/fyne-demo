@@ -138,6 +138,7 @@ func (c *Content) refreshImage() {
 }
 
 func (c *Content) refreshAll() {
+	c.InfoLog.Println("Refreshing data...")
 	c.refreshGoldPrices()
 	c.refreshImage()
 

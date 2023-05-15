@@ -1,6 +1,8 @@
 package principal
 
 import (
+	"time"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
@@ -42,6 +44,12 @@ func (l *LocalWindow) ShowAndRun() {
 	l.fyneWin.SetFixedSize(true)
 	l.fyneWin.SetMaster()
 	l.fyneWin.CenterOnScreen()
+
+	go func() {
+		for range time.Tick(time.Second * 5) {
+			l.content.refreshAll()
+		}
+	}()
 
 	l.fyneWin.ShowAndRun()
 }
