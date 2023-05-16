@@ -12,8 +12,8 @@ import (
 func Test_Get(t *testing.T) {
 	//given
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != fmt.Sprintf("/%s", Currency) {
-			t.Errorf("Expected to request '/%s', got: %s", Currency, r.URL.Path)
+		if r.URL.Path != fmt.Sprintf("/%s", PreferredCurrency) {
+			t.Errorf("Expected to request '/%s', got: %s", PreferredCurrency, r.URL.Path)
 		}
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{
@@ -38,7 +38,7 @@ func Test_Get(t *testing.T) {
 	defer server.Close()
 
 	//when
-	price, err := NewHTTPGoldPriceClient(server.URL, http.DefaultClient, Currency).Get()
+	price, err := NewHTTPGoldPriceClient(server.URL, http.DefaultClient, PreferredCurrency).Get()
 
 	//then
 	assert.Nil(t, err)

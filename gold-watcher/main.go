@@ -2,18 +2,19 @@ package main
 
 import (
 	"fyne.io/fyne/v2/app"
-	"github.com/Agustincou/fyne-demo/gold-watcher/views/principal"
+	"github.com/Agustincou/fyne-demo/gold-watcher/views"
 )
 
 const (
-	appTitle = "GoldWatcher"
+	_appTitle = "GoldWatcher"
+	_appId = "com.github.agustincou.fyne-demo.gold-watcher"
 )
 
 func main() {
 	//create fyne app
-	_ = app.NewWithID("com.github.agustincou.fyne-demo.gold-watcher")
+	_ = app.NewWithID(_appId)
 
-	localWindow := principal.NewWindow(appTitle)
+	localWindow := views.NewWindow(_appTitle)
 
 	localWindow.ShowAndRun()
 }

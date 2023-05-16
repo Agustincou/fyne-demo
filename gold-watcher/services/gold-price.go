@@ -8,8 +8,11 @@ import (
 	"time"
 )
 
+var (
+	PreferredCurrency = "USD"
+)
+
 const (
-	Currency            = "USD"
 	GoldPriceOrgBaseURL = "https://data-asg.goldprice.org/dbXRates"
 )
 
@@ -21,7 +24,6 @@ type HTTPGoldPriceClient struct {
 	GoldPriceClient
 	baseURL  string
 	client   *http.Client
-	currency string
 }
 
 type GoldPrices struct {
@@ -40,12 +42,11 @@ func NewHTTPGoldPriceClient(baseURL string, client *http.Client, currency string
 	return &HTTPGoldPriceClient{
 		baseURL:  baseURL,
 		client:   client,
-		currency: currency,
 	}
 }
 
 func (g *HTTPGoldPriceClient) Get() (*GoldPrice, error) {
-	url := fmt.Sprintf("%s/%s", g.baseURL, g.currency)
+	url := fmt.Sprintf("%s/%s", g.baseURL, PreferredCurrency)
 
 	response, err := g.client.Get(url)
 	if err != nil {

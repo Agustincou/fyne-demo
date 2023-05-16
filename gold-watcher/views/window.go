@@ -1,10 +1,9 @@
-package principal
+package views
 
 import (
 	"time"
 
 	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 )
@@ -12,7 +11,7 @@ import (
 type LocalWindow struct {
 	fyneWin fyne.Window
 	content *Content
-	tabs *container.AppTabs
+	tabs    *container.AppTabs
 }
 
 func NewWindow(title string) *LocalWindow {
@@ -20,9 +19,12 @@ func NewWindow(title string) *LocalWindow {
 
 	localWin.fyneWin = fyne.CurrentApp().NewWindow(title)
 	localWin.content = NewContent()
+
+	localWin.content.Repository.Migrate()
+
 	localWin.tabs = container.NewAppTabs(
 		container.NewTabItemWithIcon("Prices", theme.HomeIcon(), localWin.content.GetGraphTabContainer()),
-		container.NewTabItemWithIcon("Hold", theme.InfoIcon(), canvas.NewText("Holdings content goes here", nil)),
+		container.NewTabItemWithIcon("Holdings", theme.InfoIcon(), localWin.content.GetHoldingsTabContainer()),
 	)
 
 	return &localWin
@@ -36,7 +38,7 @@ func (l *LocalWindow) ShowAndRun() {
 		l.content.GetPriceContainer(),
 		l.content.ToolBar,
 		l.tabs,
-		),
+	),
 	)
 
 	//setup window view

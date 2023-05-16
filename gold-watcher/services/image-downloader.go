@@ -14,7 +14,7 @@ import (
 
 const (
 	GoldPriceOrgChartURL = "https://goldprice.org/charts/gold_3d_b_o_%s_x.png"
-	DownloadedFileName = "gold_3d_b_o_x.png"
+	DownloadedFileName   = "gold_3d_b_o_x.png"
 )
 
 type ImageDownloader interface {
@@ -37,7 +37,7 @@ func NewHTTPImageDownloader(client *http.Client, baseURL string, fileName string
 }
 
 func (h *HTTPImageDownloader) Download() error {
-	response, err := h.client.Get(fmt.Sprintf(GoldPriceOrgChartURL, Currency))
+	response, err := h.client.Get(fmt.Sprintf(GoldPriceOrgChartURL, PreferredCurrency))
 	if err != nil {
 		log.Printf("error requesting %s\n", h._URL)
 
