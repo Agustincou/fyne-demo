@@ -2,7 +2,7 @@
 * https://www.udemy.com/course/building-gui-applications-with-fyne-and-go-golang
 * https://fyne.io/
 
-I try put my own "style" in the implementation. If you get and compare the original course, you see that this code it's a little different, but in essence the same.
+I tried to put my own "style" in the implementation. If you check out and compare the original course, you'll see that this code is a little different, but essentially the same.
 
 The apps have a lot to improve. They don't have best coding practices, but I tried to do my best to improve the original course code a bit while still trying to finish the course on time.
 
