@@ -254,7 +254,7 @@ func (c *Content) refreshImage() {
 		Height: 410,
 	})
 
-	c.imageGraph.FillMode = canvas.ImageFillOriginal
+	//c.imageGraph.FillMode = canvas.ImageFillOriginal
 }
 
 func (c *Content) refreshAll() {

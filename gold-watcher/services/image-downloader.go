@@ -41,7 +41,7 @@ func (h *HTTPImageDownloader) Download() error {
 	if err != nil {
 		log.Printf("error requesting %s\n", h._URL)
 
-		return nil
+		return err
 	}
 	defer response.Body.Close()
 

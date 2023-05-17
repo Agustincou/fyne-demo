@@ -7,7 +7,7 @@ import (
 
 const (
 	_appTitle = "GoldWatcher"
-	_appId = "com.github.agustincou.fyne-demo.gold-watcher"
+	_appId = "com.github.agustincou.fyne.goldwatcher"
 )
 
 func main() {
