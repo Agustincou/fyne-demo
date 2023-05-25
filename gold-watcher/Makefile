@@ -1,6 +1,6 @@
 BINARY_NAME=GoldWatcher.exe
 APP_NAME=GoldWatcher
-VERSION=1.0.0
+VERSION=1.0.5
 BUILD_NO=1
 APP_ID=com.github.agustincou.fyne.goldwatcher
 

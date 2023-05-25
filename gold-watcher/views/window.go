@@ -42,8 +42,8 @@ func (l *LocalWindow) ShowAndRun() {
 	)
 
 	//setup window view
-	l.fyneWin.Resize(fyne.Size{Width: 770, Height: 410})
-	l.fyneWin.SetFixedSize(true)
+	l.fyneWin.Resize(fyne.Size{Width: 720, Height: 480})
+	//l.fyneWin.SetFixedSize(true)
 	l.fyneWin.SetMaster()
 	l.fyneWin.CenterOnScreen()
 
