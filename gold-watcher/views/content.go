@@ -14,6 +14,7 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/storage"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/Agustincou/fyne-demo/gold-watcher/repository"
@@ -24,9 +25,9 @@ import (
 )
 
 var (
-	_grey             = color.NRGBA{R: 155, G: 155, B: 155, A: 255}
-	_green            = color.NRGBA{R: 0, G: 180, B: 0, A: 255}
-	_red              = color.NRGBA{R: 180, G: 0, B: 0, A: 255}
+	_grey  = color.NRGBA{R: 155, G: 155, B: 155, A: 255}
+	_green = color.NRGBA{R: 0, G: 180, B: 0, A: 255}
+	_red   = color.NRGBA{R: 180, G: 0, B: 0, A: 255}
 )
 
 type Content struct {
@@ -35,8 +36,7 @@ type Content struct {
 	ErrorLog *log.Logger
 
 	//Services
-	GoldPriceService       services.GoldPriceClient
-	ImageDownloaderService services.ImageDownloader
+	GoldPriceService services.GoldPriceClient
 
 	ToolBar *widget.Toolbar
 
@@ -68,8 +68,6 @@ func NewContent() *Content {
 	//ToDo: PreferredCurrency should be modified by specific service. To improve
 	services.PreferredCurrency = fyne.CurrentApp().Preferences().StringWithFallback("currency", services.PreferredCurrency)
 	c.GoldPriceService = services.NewHTTPGoldPriceClient(services.GoldPriceOrgBaseURL, http.DefaultClient, services.PreferredCurrency)
-	c.ImageDownloaderService = services.NewHTTPImageDownloader(http.DefaultClient, services.GoldPriceOrgChartURL, services.DownloadedFileName)
-
 
 	c.openPrice = canvas.NewText("Open: Unreachable", _grey)
 	c.currentPrice = canvas.NewText("Current: Unreachable", _grey)
@@ -136,11 +134,8 @@ func NewContent() *Content {
 func (c *Content) GetPriceContainer() *fyne.Container {
 	c.refreshGoldPrices()
 
-	c.priceContainer = container.NewGridWithColumns(3,
-		c.openPrice,
-		c.currentPrice,
-		c.changePrice,
-	)
+	c.priceContainer.Objects = []fyne.CanvasObject{c.openPrice, c.currentPrice, c.changePrice}
+	c.priceContainer.Refresh()
 
 	return c.priceContainer
 }
@@ -166,9 +161,28 @@ func (c *Content) GetHoldingsTabContainer() *fyne.Container {
 
 func (c *Content) GetGraphTabContainer() *fyne.Container {
 	c.refreshImage()
+	height := float32(100)
+
+	//ToDo: To improve. Algorithm to adjust the size of the image container so that it is not larger than the MAX size of the window
+	if c.imageContainer != nil && len(c.imageContainer.Objects) != 0 {
+		fmt.Println("Posicion container imagen: ", c.imageContainer.Position())
+		height = fyne.CurrentApp().Driver().AllWindows()[0].Canvas().Size().Height - c.imageContainer.Position().Y - 100
+		fmt.Println("Alto imagen:", c.imageGraph.MinSize().Height)
+		if height > c.imageGraph.MinSize().Height {
+			height = c.imageGraph.MinSize().Height
+		}
+	}
 
 	//Previous refresh all don't render the initial image for unknown reasons. It only works with NewVBox
-	c.imageContainer = container.NewVBox(c.imageGraph)
+	scroll := container.NewScroll(c.imageGraph)
+	scroll.SetMinSize(fyne.Size{
+		Height: height,
+		Width: fyne.CurrentApp().Driver().AllWindows()[0].Canvas().Size().Width - 100,
+	})
+	grid := container.NewAdaptiveGrid(1, scroll)
+	fmt.Println("Size elemento:", height)
+	fmt.Println("Max Y ventana:", fyne.CurrentApp().Driver().AllWindows()[0].Canvas().Size().Height)
+	c.imageContainer.Objects = []fyne.CanvasObject{grid}
 	c.imageContainer.Refresh()
 
 	return c.imageContainer
@@ -242,11 +256,11 @@ func (c *Content) getHoldingsTableItems() [][]interface{} {
 }
 
 func (c *Content) refreshImage() {
-	if err := c.ImageDownloaderService.Download(); err != nil {
-		//use bundle image
+	fyneURI, _ := storage.ParseURI(fmt.Sprintf("https://goldprice.org/charts/gold_3d_b_o_%s_x.png", services.PreferredCurrency))
+	c.imageGraph = canvas.NewImageFromURI(fyneURI)
+
+	if c.imageGraph == nil || c.imageGraph.Resource == nil {
 		c.imageGraph = canvas.NewImageFromResource(images.ResourceUnreachablePng)
-	} else {
-		c.imageGraph = canvas.NewImageFromFile(services.DownloadedFileName)
 	}
 
 	c.imageGraph.SetMinSize(fyne.Size{
@@ -254,18 +268,12 @@ func (c *Content) refreshImage() {
 		Height: 410,
 	})
 
-	//c.imageGraph.FillMode = canvas.ImageFillOriginal
+	c.imageGraph.FillMode = canvas.ImageFillContain
 }
 
 func (c *Content) refreshAll() {
-	c.refreshGoldPrices()
-	c.refreshImage()
-
-	c.imageContainer.Objects = []fyne.CanvasObject{c.imageGraph}
-	c.imageContainer.Refresh()
-
-	c.priceContainer.Objects = []fyne.CanvasObject{c.openPrice, c.currentPrice, c.changePrice}
-	c.priceContainer.Refresh()
+	c.GetGraphTabContainer()
+	c.GetPriceContainer()
 }
 
 func (c *Content) refreshHoldingsTable() {
@@ -332,7 +340,7 @@ func (c *Content) showPreferences() {
 	win := fyne.CurrentApp().NewWindow("Preferences")
 
 	label := widget.NewLabel("Preferred currency")
-	cur := widget.NewSelect([]string{"USD","ARS","CAD"}, func(selected string) {
+	cur := widget.NewSelect([]string{"USD", "ARS", "CAD"}, func(selected string) {
 		//ToDo: PreferredCurrency should be modified by specific service. To improve
 		services.PreferredCurrency = selected
 		fyne.CurrentApp().Preferences().SetString("currency", selected)
@@ -347,6 +355,6 @@ func (c *Content) showPreferences() {
 
 	win.SetContent(container.NewVBox(label, cur, btn))
 
-	win.Resize(fyne.NewSize(300,200))
+	win.Resize(fyne.NewSize(300, 200))
 	win.Show()
 }
